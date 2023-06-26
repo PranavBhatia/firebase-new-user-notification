@@ -3,21 +3,17 @@ const admin = require("firebase-admin");
 
 admin.initializeApp();
 
-exports.addWelcomeMessages = functions.auth.user().onCreate(async (user) => {
-  functions.logger.log("A new user signed in for the first time.");
-  const fullName = user.email || "Anonymous";
+exports.newUserTrigger = functions.auth.user().onCreate(async (user) => {
+  functions.logger.log("A new user signed in for the first time");
 
-  await admin
+  admin
     .firestore()
-    .collection("messages")
+    .collection("userEvents")
     .add({
-      name: "Firebase Bot",
-      profilePicUrl: "/images/firebase-logo.png", // Firebase logo
-      text: `${fullName} signed in for the first time! Welcome!`,
+      event: "User Signed Up",
+      text: `${user.email} signed in for the first time`,
       timestamp: admin.firestore.FieldValue.serverTimestamp(),
     });
 
-  functions.logger.log(
-    `Welcome message for ${fullName} is written to database.`
-  );
+  functions.logger.log(`New user ${user.email} is saved to our db.`);
 });
